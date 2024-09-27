@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:oxoai/widgets/grid.dart';
 
 class TicTacToeScreen extends StatefulWidget {
+  const TicTacToeScreen({super.key});
+
   @override
   _TicTacToeScreenState createState() => _TicTacToeScreenState();
 }
 
 class _TicTacToeScreenState extends State<TicTacToeScreen> {
   // 3x3 grid initialized with empty strings
-  List<List<String>> _grid = List.generate(3, (_) => List.filled(3, ''));
+  final List<List<String>> _grid = List.generate(3, (_) => List.filled(3, ''));
 
   // Tracks the current player (true for player, false for AI)
   bool _isPlayerTurn = true;
@@ -16,7 +17,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Background color for the screen
+      backgroundColor: Colors.black,
       body: Column(
         children: [
           // Top section for player status
@@ -85,7 +86,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
             ),
           ),
 
-          // Middle section for Tic-Tac-Toe grid
+          // Middle section for Tic-Tac-Toe grid (using GridView)
           Expanded(
             flex: 3,
             child: Center(
@@ -93,11 +94,41 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                 padding: const EdgeInsets.all(20.0),
                 child: AspectRatio(
                   aspectRatio: 1,
-                  child: GestureDetector(
-                    onTapUp: (details) => _handleTap(details, context),
-                    child: CustomPaint(
-                      painter: TicTacToePainter(_grid),
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // 3 columns for Tic-Tac-Toe
+                      crossAxisSpacing: 5, // spacing between the cells
+                      mainAxisSpacing: 5, // spacing between rows
                     ),
+                    itemCount: 9, // 3x3 grid = 9 cells
+                    itemBuilder: (context, index) {
+                      int row = index ~/ 3; // Get row by integer division
+                      int col = index % 3; // Get column by remainder
+
+                      return GestureDetector(
+                        onTap: () => _handleTapAtIndex(row, col),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.black),
+                            borderRadius:
+                                BorderRadius.circular(15), // Rounded corners
+                          ),
+                          child: Center(
+                            child: Text(
+                              _grid[row][col], // Show X or O
+                              style: TextStyle(
+                                fontSize: 48, // Font size for X and O
+                                color: _grid[row][col] == 'X'
+                                    ? Colors.red
+                                    : Colors.blue, // Color based on player
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -127,22 +158,12 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   }
 
   // Handle the tap on the Tic-Tac-Toe grid
-  void _handleTap(TapUpDetails details, BuildContext context) {
-    // Get the size of the grid
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
-    Size size = renderBox.size;
-
-    // Calculate the tapped position (row, col)
-    double cellSize = size.width / 3;
-    int row = (details.localPosition.dy ~/ cellSize);
-    int col = (details.localPosition.dx ~/ cellSize);
-
-    // Check if the tapped cell is empty and it's the player's turn
+  void _handleTapAtIndex(int row, int col) {
     if (_grid[row][col] == '') {
       setState(() {
         _grid[row][col] =
-            _isPlayerTurn ? 'X' : 'O'; // Mark 'X' for player, 'O' for AI
-        _isPlayerTurn = !_isPlayerTurn; // Toggle turn
+            _isPlayerTurn ? 'X' : 'O'; // Mark X for player, O for AI
+        _isPlayerTurn = !_isPlayerTurn; // Switch turn
       });
     }
   }
