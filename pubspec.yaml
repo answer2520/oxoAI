@@ -37,6 +37,7 @@ dependencies:
   provider: ^6.1.2
   flutter_launcher_icons: ^0.14.1
   flutter_native_splash: ^2.4.1
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -52,9 +53,9 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "lib/assets/oxo.png"
+  image_path: "lib/assets/icons/oxoincon.ico"
   android_adaptive_icon_background: "#FFFFFF"  # Optional background color for Android
-  android_adaptive_icon_foreground: "lib/assets/oxo.png"
+  android_adaptive_icon_foreground: "ib/assets/icons/oxoincon.ico"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -69,7 +70,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets: 
-    - lib/assets/OXO.png 
+    - lib/assets/icons/oxoicon.ico 
+    - lib/assets/sounds/click.mp3 
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

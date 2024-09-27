@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oxoai/HomePage.dart';
+import 'package:oxoai/screens/HomePage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 5), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePage()),

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+
+final AudioPlayer _audioPlayer = AudioPlayer();
+
+void _playSound() {
+  _audioPlayer.play(AssetSource('../lib/assets/sounds/click.mp3'));
+}
 
 class TicTacToeScreen extends StatefulWidget {
-  const TicTacToeScreen({super.key});
+  TicTacToeScreen({super.key});
 
   @override
   _TicTacToeScreenState createState() => _TicTacToeScreenState();
@@ -159,6 +166,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
 
   // Handle the tap on the Tic-Tac-Toe grid
   void _handleTapAtIndex(int row, int col) {
+    _playSound();
     if (_grid[row][col] == '') {
       setState(() {
         _grid[row][col] =
