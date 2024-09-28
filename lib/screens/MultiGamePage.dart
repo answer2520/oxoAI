@@ -39,7 +39,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'YOU',
+                        'Player 1',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -63,7 +63,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'AI',
+                        'Player 2',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
