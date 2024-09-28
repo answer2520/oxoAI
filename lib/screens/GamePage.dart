@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
 
-final AudioPlayer _audioPlayer = AudioPlayer();
+// final AudioPlayer _audioPlayer = AudioPlayer();
 
-void _playSound() {
-  _audioPlayer.play(AssetSource('../lib/assets/sounds/click.mp3'));
-}
+// void _playSound() {
+//   _audioPlayer.play(AssetSource('../lib/assets/sounds/click.mp3'));
+// }
 
 class TicTacToeScreen extends StatefulWidget {
   final String difficulty;
@@ -162,7 +162,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
 
   // Handle the tap on the Tic-Tac-Toe grid
   void _handleTapAtIndex(int row, int col) {
-    _playSound();
+    // _playSound();
     if (_grid[row][col].isEmpty && _isPlayerTurn) {
       setState(() {
         _grid[row][col] = 'X';
