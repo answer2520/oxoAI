@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:oxoai/screens/HomePage.dart';
+import 'package:oxoai/screens/MultiGamePage.dart';
 import 'package:oxoai/screens/GamePage.dart';
-// import 'package:audioplayers/audioplayers.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class SingleOrMulti extends StatefulWidget {
+  const SingleOrMulti({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _SingleOrMultiState createState() => _SingleOrMultiState();
 }
 
-class _HomePageState extends State<HomePage> {
-  String _selectedDifficulty = 'Easy'; // Default value
+class _SingleOrMultiState extends State<SingleOrMulti> {
+  String _selectedPartner = 'Ai'; // Default selection is AI
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'Choose Difficulty Level',
+                        'Play with',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -52,12 +53,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      _buildDifficultyButton('Easy', Colors.green.shade300),
+                      // Button for Multiplayer
+                      _buildPlayerButton('Multiplayer', Colors.green.shade300),
                       const SizedBox(height: 10),
-                      _buildDifficultyButton('Medium', Colors.blue.shade300),
+                      // Button for AI
+                      _buildPlayerButton('Ai', Colors.blue.shade300),
                       const SizedBox(height: 10),
-                      _buildDifficultyButton('Difficult', Colors.pink.shade200),
-                      const SizedBox(height: 20),
+                      // Go Button to navigate
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
@@ -67,15 +69,26 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TicTacToeScreen(difficulty: _selectedDifficulty),
-                            ),
-                          );
+                          // Conditional navigation based on selected partner
+                          if (_selectedPartner == 'Multiplayer') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MultiPlayerScreen(),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    HomePage(), // Navigate to AI screen
+                              ),
+                            );
+                          }
                         },
                         child: const Text(
-                          'Play!',
+                          'Go!',
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
@@ -90,12 +103,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildDifficultyButton(String text, Color color) {
+  // Helper function to build the player selection buttons
+  Widget _buildPlayerButton(String text, Color color) {
     return Container(
       width: 250,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: _selectedDifficulty == text ? color : null,
+          backgroundColor: _selectedPartner == text ? color : null,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -103,7 +117,7 @@ class _HomePageState extends State<HomePage> {
         ),
         onPressed: () {
           setState(() {
-            _selectedDifficulty = text; // Set selected difficulty
+            _selectedPartner = text; // Update selected partner
           });
         },
         child: Text(
