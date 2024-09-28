@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:oxoai/screens/HomePage.dart';
+import 'package:oxoai/screens/MultiGamePage.dart';
 import 'package:oxoai/screens/GamePage.dart';
-// import 'package:audioplayers/audioplayers.dart';
 
 class SingleOrMulti extends StatefulWidget {
   const SingleOrMulti({Key? key}) : super(key: key);
@@ -10,7 +11,7 @@ class SingleOrMulti extends StatefulWidget {
 }
 
 class _SingleOrMultiState extends State<SingleOrMulti> {
-  String _selectedPartener = 'Ai'; // Default value
+  String _selectedPartner = 'Ai'; // Default selection is AI
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +53,13 @@ class _SingleOrMultiState extends State<SingleOrMulti> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // Button for Multiplayer
                       _buildPlayerButton('Multiplayer', Colors.green.shade300),
                       const SizedBox(height: 10),
+                      // Button for AI
                       _buildPlayerButton('Ai', Colors.blue.shade300),
                       const SizedBox(height: 10),
+                      // Go Button to navigate
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
@@ -65,12 +69,23 @@ class _SingleOrMultiState extends State<SingleOrMulti> {
                           ),
                         ),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TicTacToeScreen(difficulty: _selectedPartener),
-                            ),
-                          );
+                          // Conditional navigation based on selected partner
+                          if (_selectedPartner == 'Multiplayer') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MultiPlayerScreen(),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    HomePage(), // Navigate to AI screen
+                              ),
+                            );
+                          }
                         },
                         child: const Text(
                           'Go!',
@@ -88,12 +103,13 @@ class _SingleOrMultiState extends State<SingleOrMulti> {
     );
   }
 
+  // Helper function to build the player selection buttons
   Widget _buildPlayerButton(String text, Color color) {
     return Container(
       width: 250,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: _selectedPartener == text ? color : null,
+          backgroundColor: _selectedPartner == text ? color : null,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -101,7 +117,7 @@ class _SingleOrMultiState extends State<SingleOrMulti> {
         ),
         onPressed: () {
           setState(() {
-            _selectedPartener = text; // Set selected difficulty
+            _selectedPartner = text; // Update selected partner
           });
         },
         child: Text(

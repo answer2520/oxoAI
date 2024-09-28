@@ -1,14 +1,14 @@
 
 import 'package:flutter/material.dart';
 
-class TicTacToeScreen extends StatefulWidget {
-  TicTacToeScreen({super.key});
+class MultiPlayerScreen extends StatefulWidget {
+  MultiPlayerScreen({super.key});
 
   @override
-  _TicTacToeScreenState createState() => _TicTacToeScreenState();
+  _MultiPlayerScreenState createState() => _MultiPlayerScreenState();
 }
 
-class _TicTacToeScreenState extends State<TicTacToeScreen> {
+class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
   // 3x3 grid initialized with empty strings
   final List<List<String>> _grid = List.generate(3, (_) => List.filled(3, ''));
 

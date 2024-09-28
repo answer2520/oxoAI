@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oxoai/screens/HomePage.dart';
+import 'package:oxoai/screens/SingleOrMulti.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => const SingleOrMulti()),
       );
     });
   }
@@ -48,9 +49,9 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Colors.black, // Or any color you prefer
       body: Center(
         child: Image.asset(
-          'lib/assets/images/oxo.png', 
-          width: 100, 
-          height: 100, 
+          'lib/assets/images/oxo.png',
+          width: 100,
+          height: 100,
         ),
       ),
     );
