@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'dart:math';
 
 final AudioPlayer _audioPlayer = AudioPlayer();
 
@@ -8,17 +9,16 @@ void _playSound() {
 }
 
 class TicTacToeScreen extends StatefulWidget {
-  TicTacToeScreen({super.key});
+  final String difficulty;
+
+  TicTacToeScreen({Key? key, required this.difficulty}) : super(key: key);
 
   @override
   _TicTacToeScreenState createState() => _TicTacToeScreenState();
 }
 
 class _TicTacToeScreenState extends State<TicTacToeScreen> {
-  // 3x3 grid initialized with empty strings
-  final List<List<String>> _grid = List.generate(3, (_) => List.filled(3, ''));
-
-  // Tracks the current player (true for player, false for AI)
+  List<List<String>> _grid = List.generate(3, (_) => List.filled(3, ''));
   bool _isPlayerTurn = true;
 
   @override
@@ -93,7 +93,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
             ),
           ),
 
-          // Middle section for Tic-Tac-Toe grid (using GridView)
+          // Middle section for Tic-Tac-Toe grid
           Expanded(
             flex: 3,
             child: Center(
@@ -102,16 +102,15 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, // 3 columns for Tic-Tac-Toe
-                      crossAxisSpacing: 5, // spacing between the cells
-                      mainAxisSpacing: 5, // spacing between rows
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 5,
                     ),
-                    itemCount: 9, // 3x3 grid = 9 cells
+                    itemCount: 9,
                     itemBuilder: (context, index) {
-                      int row = index ~/ 3; // Get row by integer division
-                      int col = index % 3; // Get column by remainder
+                      int row = index ~/ 3;
+                      int col = index % 3;
 
                       return GestureDetector(
                         onTap: () => _handleTapAtIndex(row, col),
@@ -119,17 +118,14 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border.all(color: Colors.black),
-                            borderRadius:
-                                BorderRadius.circular(15), // Rounded corners
+                            borderRadius: BorderRadius.circular(15),
                           ),
                           child: Center(
                             child: Text(
-                              _grid[row][col], // Show X or O
+                              _grid[row][col],
                               style: TextStyle(
-                                fontSize: 48, // Font size for X and O
-                                color: _grid[row][col] == 'X'
-                                    ? Colors.red
-                                    : Colors.blue, // Color based on player
+                                fontSize: 48,
+                                color: _grid[row][col] == 'X' ? Colors.red : Colors.blue,
                               ),
                             ),
                           ),
@@ -167,12 +163,193 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   // Handle the tap on the Tic-Tac-Toe grid
   void _handleTapAtIndex(int row, int col) {
     _playSound();
-    if (_grid[row][col] == '') {
+    if (_grid[row][col].isEmpty && _isPlayerTurn) {
       setState(() {
-        _grid[row][col] =
-            _isPlayerTurn ? 'X' : 'O'; // Mark X for player, O for AI
-        _isPlayerTurn = !_isPlayerTurn; // Switch turn
+        _grid[row][col] = 'X';
+        _isPlayerTurn = false;
+      });
+
+      if (!checkWin(_grid, 'X') && !checkDraw(_grid)) {
+        _aiMove();
+      }
+    }
+  }
+
+  void _aiMove() {
+    if (widget.difficulty == 'Easy') {
+      _makeRandomMove();
+    } else if (widget.difficulty == 'Medium') {
+      _makeMoveWithLimitedMinimax();
+    } else if (widget.difficulty == 'Difficult') {
+      _makeBestMoveWithMinimax();
+    }
+
+    setState(() {
+      _isPlayerTurn = true;
+    });
+  }
+
+  void _makeRandomMove() {
+    List<List<int>> availableMoves = [];
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        if (_grid[i][j].isEmpty) {
+          availableMoves.add([i, j]);
+        }
+      }
+    }
+
+    if (availableMoves.isNotEmpty) {
+      Random random = Random();
+      List<int> randomMove = availableMoves[random.nextInt(availableMoves.length)];
+      setState(() {
+        _grid[randomMove[0]][randomMove[1]] = 'O';
       });
     }
+  }
+
+  void _makeMoveWithLimitedMinimax() {
+    int bestScore = -1000;
+    List<int> bestMove = [-1, -1];
+    int depthLimit = 2;
+
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        if (_grid[i][j].isEmpty) {
+          _grid[i][j] = 'O';
+          int score = minimaxWithDepthLimit(_grid, false, 0, depthLimit);
+          _grid[i][j] = '';
+          if (score > bestScore) {
+            bestScore = score;
+            bestMove = [i, j];
+          }
+        }
+      }
+    }
+
+    if (bestMove[0] != -1 && bestMove[1] != -1) {
+      setState(() {
+        _grid[bestMove[0]][bestMove[1]] = 'O';
+      });
+    }
+  }
+
+  void _makeBestMoveWithMinimax() {
+    int bestScore = -1000;
+    List<int> bestMove = [-1, -1];
+
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        if (_grid[i][j].isEmpty) {
+          _grid[i][j] = 'O';
+          int score = minimax(_grid, false);
+          _grid[i][j] = '';
+          if (score > bestScore) {
+            bestScore = score;
+            bestMove = [i, j];
+          }
+        }
+      }
+    }
+
+    if (bestMove[0] != -1 && bestMove[1] != -1) {
+      setState(() {
+        _grid[bestMove[0]][bestMove[1]] = 'O';
+      });
+    }
+  }
+
+  int minimaxWithDepthLimit(List<List<String>> board, bool isMaximizing, int depth, int maxDepth) {
+    if (checkWin(board, 'O')) return 1;
+    if (checkWin(board, 'X')) return -1;
+    if (checkDraw(board)) return 0;
+
+    if (depth == maxDepth) return 0;
+
+    if (isMaximizing) {
+      int bestScore = -1000;
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+          if (board[i][j].isEmpty) {
+            board[i][j] = 'O';
+            int score = minimaxWithDepthLimit(board, false, depth + 1, maxDepth);
+            board[i][j] = '';
+            bestScore = max(score, bestScore);
+          }
+        }
+      }
+      return bestScore;
+    } else {
+      int bestScore = 1000;
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+          if (board[i][j].isEmpty) {
+            board[i][j] = 'X';
+            int score = minimaxWithDepthLimit(board, true, depth + 1, maxDepth);
+            board[i][j] = '';
+            bestScore = min(score, bestScore);
+          }
+        }
+      }
+      return bestScore;
+    }
+  }
+
+  int minimax(List<List<String>> board, bool isMaximizing) {
+    if (checkWin(board, 'O')) return 1;
+    if (checkWin(board, 'X')) return -1;
+    if (checkDraw(board)) return 0;
+
+    if (isMaximizing) {
+      int bestScore = -1000;
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+          if (board[i][j].isEmpty) {
+            board[i][j] = 'O';
+            int score = minimax(board, false);
+            board[i][j] = '';
+            bestScore = max(score, bestScore);
+          }
+        }
+      }
+      return bestScore;
+    } else {
+      int bestScore = 1000;
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+          if (board[i][j].isEmpty) {
+            board[i][j] = 'X';
+            int score = minimax(board, true);
+            board[i][j] = '';
+            bestScore = min(score, bestScore);
+          }
+        }
+      }
+      return bestScore;
+    }
+  }
+
+  bool checkWin(List<List<String>> board, String player) {
+    // Check rows, columns, and diagonals
+    for (int i = 0; i < 3; i++) {
+      if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) ||
+          (board[0][i] == player && board[1][i] == player && board[2][i] == player)) {
+        return true;
+      }
+    }
+    if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
+        (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
+      return true;
+    }
+    return false;
+  }
+
+  bool checkDraw(List<List<String>> board) {
+    for (var row in board) {
+      if (row.contains('')) {
+        return false;
+      }
+    }
+    return true;
   }
 }

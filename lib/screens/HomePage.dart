@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:oxoai/screens/GamePage.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-  
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String _selectedDifficulty = 'Easy'; // Default value
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -47,7 +52,7 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      _buildDifficultyButton('Easy', Colors.white),
+                      _buildDifficultyButton('Easy', Colors.green.shade300),
                       const SizedBox(height: 10),
                       _buildDifficultyButton('Medium', Colors.blue.shade300),
                       const SizedBox(height: 10),
@@ -55,7 +60,6 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 20),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          //primary: Colors.purple,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 50, vertical: 15),
                           shape: RoundedRectangleBorder(
@@ -66,7 +70,8 @@ class HomePage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => TicTacToeScreen()),
+                              builder: (context) => TicTacToeScreen(difficulty: _selectedDifficulty),
+                            ),
                           );
                         },
                         child: const Text(
@@ -90,15 +95,16 @@ class HomePage extends StatelessWidget {
       width: 250,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          //primary: color,
-          //onPrimary: Colors.black,
+          backgroundColor: _selectedDifficulty == text ? color : null,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
         ),
         onPressed: () {
-          // Handle difficulty selection
+          setState(() {
+            _selectedDifficulty = text; // Set selected difficulty
+          });
         },
         child: Text(
           text,
