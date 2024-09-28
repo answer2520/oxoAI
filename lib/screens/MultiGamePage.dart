@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class MultiPlayerScreen extends StatefulWidget {
@@ -166,6 +165,51 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
             _isPlayerTurn ? 'X' : 'O'; // Mark X for player, O for AI
         _isPlayerTurn = !_isPlayerTurn; // Switch turn
       });
+
+      // Check if the grid is full after each move
+      if (_isGridFull()) {
+        _showGameOverDialog(); // Show game over dialog when grid is full
+      }
     }
+  }
+
+  // Check if the grid is full
+  bool _isGridFull() {
+    for (var row in _grid) {
+      if (row.contains('')) {
+        return false; // If any cell is empty, the grid is not full
+      }
+    }
+    return true; // Grid is full
+  }
+
+  // Show a dialog when the game is over
+  void _showGameOverDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.red.withOpacity(0.7),
+          title: const Text('The player X won!'),
+          content: const Text('Would you like to play again?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _resetGrid(); // Reset the grid to start a new game
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Reset the grid to an empty state
+  void _resetGrid() {
+    setState(() {
+      _grid.setAll(0, List.generate(3, (_) => List.filled(3, '')));
+    });
   }
 }
