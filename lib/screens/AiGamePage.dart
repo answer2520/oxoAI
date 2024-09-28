@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:audioplayers/audioplayers.dart';
 import 'dart:math';
-
-// final AudioPlayer _audioPlayer = AudioPlayer();
-
-// void _playSound() {
-//   _audioPlayer.play(AssetSource('../lib/assets/sounds/click.mp3'));
-// }
-
+import 'package:oxoai/screens/AiOrMulti.dart';
 class TicTacToeScreen extends StatefulWidget {
   final String difficulty;
 
@@ -20,6 +13,8 @@ class TicTacToeScreen extends StatefulWidget {
 class _TicTacToeScreenState extends State<TicTacToeScreen> {
   List<List<String>> _grid = List.generate(3, (_) => List.filled(3, ''));
   bool _isPlayerTurn = true;
+  int playerScore = 0;
+  int aiScore = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +22,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // Top section for player status
+          // Top section for player and AI score
           Expanded(
             flex: 2,
             child: Container(
@@ -61,6 +56,16 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                           color: Colors.redAccent,
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        child: Center(
+                          child: Text(
+                            '$playerScore',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -84,6 +89,16 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                         decoration: BoxDecoration(
                           color: Colors.blueAccent,
                           borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$aiScore',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -162,14 +177,18 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
 
   // Handle the tap on the Tic-Tac-Toe grid
   void _handleTapAtIndex(int row, int col) {
-    // _playSound();
     if (_grid[row][col].isEmpty && _isPlayerTurn) {
       setState(() {
         _grid[row][col] = 'X';
         _isPlayerTurn = false;
       });
 
-      if (!checkWin(_grid, 'X') && !checkDraw(_grid)) {
+      if (checkWin(_grid, 'X')) {
+        playerScore++;
+        _showEndDialog('You Won!');
+      } else if (checkDraw(_grid)) {
+        _showEndDialog('It\'s a Draw!');
+      } else {
         _aiMove();
       }
     }
@@ -185,6 +204,54 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     }
 
     setState(() {
+      _isPlayerTurn = true;
+    });
+
+    if (checkWin(_grid, 'O')) {
+      aiScore++;
+      _showEndDialog('AI Won!');
+    } else if (checkDraw(_grid)) {
+      _showEndDialog('It\'s a Draw!');
+    }
+  }
+
+  void _showEndDialog(String title) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title, textAlign: TextAlign.center),
+          content: const Text('Do you want to play again?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _resetGrid();
+              },
+              child: const Text('Yes'),
+            ),
+TextButton(
+  onPressed: () {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SingleOrMulti()), // Navigate to the AiOrMulti screen
+    );
+  },
+  child: const Text('No'),
+),
+
+
+          ],
+        );
+      },
+    );
+  }
+
+  void _resetGrid() {
+    setState(() {
+      _grid = List.generate(3, (_) => List.filled(3, ''));
       _isPlayerTurn = true;
     });
   }

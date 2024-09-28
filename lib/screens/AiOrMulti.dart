@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oxoai/screens/HomePage.dart';
 import 'package:oxoai/screens/MultiGamePage.dart';
-import 'package:oxoai/screens/GamePage.dart';
+import 'package:oxoai/screens/AiGamePage.dart';
 
 class SingleOrMulti extends StatefulWidget {
   const SingleOrMulti({Key? key}) : super(key: key);

@@ -11,8 +11,12 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
   // 3x3 grid initialized with empty strings
   final List<List<String>> _grid = List.generate(3, (_) => List.filled(3, ''));
 
-  // Tracks the current player (true for player, false for AI)
-  bool _isPlayerTurn = true;
+  // Tracks the current player (true for player 1 (X), false for player 2 (O))
+  bool _isPlayer1Turn = true;
+
+  // Scores for Player 1 and Player 2
+  int _player1Score = 0;
+  int _player2Score = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +24,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // Top section for player status
+          // Top section for player status and scores
           Expanded(
             flex: 2,
             child: Container(
@@ -34,12 +38,12 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // "YOU" section
+                  // "Player 1 (X)" section with score
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'YOU',
+                        'Player 1 (X)',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -54,16 +58,25 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                           color: Colors.redAccent,
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        child: Center(
+                          child: Text(
+                            '$_player1Score',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
 
-                  // "AI" section
+                  // "Player 2 (O)" section with score
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'AI',
+                        'Player 2 (O)',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -78,6 +91,15 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                           color: Colors.blueAccent,
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        child: Center(
+                          child: Text(
+                            '$_player2Score',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -86,7 +108,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
             ),
           ),
 
-          // Middle section for Tic-Tac-Toe grid (using GridView)
+          // Middle section for Tic-Tac-Toe grid
           Expanded(
             flex: 3,
             child: Center(
@@ -112,14 +134,13 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border.all(color: Colors.black),
-                            borderRadius:
-                                BorderRadius.circular(15), // Rounded corners
+                            borderRadius: BorderRadius.circular(15),
                           ),
                           child: Center(
                             child: Text(
                               _grid[row][col], // Show X or O
                               style: TextStyle(
-                                fontSize: 48, // Font size for X and O
+                                fontSize: 48,
                                 color: _grid[row][col] == 'X'
                                     ? Colors.red
                                     : Colors.blue, // Color based on player
@@ -162,13 +183,23 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
     if (_grid[row][col] == '') {
       setState(() {
         _grid[row][col] =
-            _isPlayerTurn ? 'X' : 'O'; // Mark X for player, O for AI
-        _isPlayerTurn = !_isPlayerTurn; // Switch turn
+            _isPlayer1Turn ? 'X' : 'O'; // Mark X for player 1, O for player 2
+        _isPlayer1Turn = !_isPlayer1Turn; // Switch turn
       });
 
-      // Check if the grid is full after each move
-      if (_isGridFull()) {
-        _showGameOverDialog(); // Show game over dialog when grid is full
+      // Check for win after the move
+      String? winner = _checkWin();
+      if (winner != null) {
+        // Update the score for the winner
+        if (winner == 'X') {
+          _player1Score++;
+        } else if (winner == 'O') {
+          _player2Score++;
+        }
+        _showGameOverDialog(winner);
+      } else if (_isGridFull()) {
+        // If no winner and the grid is full, it's a draw
+        _showGameOverDialog('Draw');
       }
     }
   }
@@ -177,27 +208,79 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
   bool _isGridFull() {
     for (var row in _grid) {
       if (row.contains('')) {
-        return false; // If any cell is empty, the grid is not full
+        return false;
       }
     }
-    return true; // Grid is full
+    return true;
+  }
+
+  // Check for a win condition
+  String? _checkWin() {
+    // Check rows, columns, and diagonals for a win
+    for (int i = 0; i < 3; i++) {
+      if (_grid[i][0] == _grid[i][1] &&
+          _grid[i][1] == _grid[i][2] &&
+          _grid[i][0] != '') {
+        return _grid[i][0]; // Return the winner ('X' or 'O')
+      }
+      if (_grid[0][i] == _grid[1][i] &&
+          _grid[1][i] == _grid[2][i] &&
+          _grid[0][i] != '') {
+        return _grid[0][i]; // Return the winner ('X' or 'O')
+      }
+    }
+    // Check diagonals
+    if (_grid[0][0] == _grid[1][1] &&
+        _grid[1][1] == _grid[2][2] &&
+        _grid[0][0] != '') {
+      return _grid[0][0];
+    }
+    if (_grid[0][2] == _grid[1][1] &&
+        _grid[1][1] == _grid[2][0] &&
+        _grid[0][2] != '') {
+      return _grid[0][2];
+    }
+    return null; // No winner
   }
 
   // Show a dialog when the game is over
-  void _showGameOverDialog() {
+  void _showGameOverDialog(String result) {
+    String dialogTitle = result == 'Draw'
+        ? 'It\'s a Draw!'
+        : 'Player ${result == 'X' ? '1' : '2'} Wins!';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.red.withOpacity(0.7),
-          title: const Text('The player X won!'),
-          content: const Text('Would you like to play again?'),
+          backgroundColor: Colors.grey[900],
+          title: Text(
+            dialogTitle,
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: const Text(
+            'Would you like to play again?',
+            style: TextStyle(color: Colors.white70),
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(color: Colors.blueAccent),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
-                _resetGrid(); // Reset the grid to start a new game
+                _resetGrid(); // Reset the grid for a new game
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'No',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                // Optional: Navigate to another screen or quit the game
               },
             ),
           ],

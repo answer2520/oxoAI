@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oxoai/screens/HomePage.dart';
-import 'package:oxoai/screens/SingleOrMulti.dart';
+import 'package:oxoai/screens/AiOrMulti.dart';
 
 void main() {
   runApp(const MyApp());

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oxoai/screens/GamePage.dart';
+import 'package:oxoai/screens/AiGamePage.dart';
 // import 'package:audioplayers/audioplayers.dart';
 
 class HomePage extends StatefulWidget {
@@ -70,7 +70,8 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => TicTacToeScreen(difficulty: _selectedDifficulty),
+                              builder: (context) => TicTacToeScreen(
+                                  difficulty: _selectedDifficulty),
                             ),
                           );
                         },
