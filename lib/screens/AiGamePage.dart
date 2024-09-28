@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:oxoai/widgets/modalSheet.dart';
 import 'package:oxoai/screens/AiOrMulti.dart';
 class TicTacToeScreen extends StatefulWidget {
   final String difficulty;
@@ -162,7 +163,10 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: FloatingActionButton(
                   onPressed: () {
-                    // Add functionality for help button
+                    showModalBottomSheet(
+                  context: context,
+                  builder: (context) => ModalBottomSheetExample(),
+                );
                   },
                   backgroundColor: Colors.blueAccent,
                   child: const Icon(Icons.help_outline, color: Colors.white),
