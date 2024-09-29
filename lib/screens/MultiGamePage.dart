@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oxoai/widgets/modalSheet.dart';
 
 class MultiPlayerScreen extends StatefulWidget {
   MultiPlayerScreen({super.key});
@@ -117,6 +118,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: GridView.builder(
+                    physics: NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, // 3 columns for Tic-Tac-Toe
@@ -165,7 +167,10 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: FloatingActionButton(
                   onPressed: () {
-                    // Add functionality for help button
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => ModalBottomSheetExample(),
+                    );
                   },
                   backgroundColor: Colors.blueAccent,
                   child: const Icon(Icons.help_outline, color: Colors.white),
