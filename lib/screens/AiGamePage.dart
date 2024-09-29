@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:oxoai/widgets/modalSheet.dart';
 import 'package:oxoai/screens/AiOrMulti.dart';
+
 class TicTacToeScreen extends StatefulWidget {
   final String difficulty;
 
@@ -118,7 +119,9 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 5,
                       mainAxisSpacing: 5,
@@ -141,7 +144,9 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                               _grid[row][col],
                               style: TextStyle(
                                 fontSize: 48,
-                                color: _grid[row][col] == 'X' ? Colors.red : Colors.blue,
+                                color: _grid[row][col] == 'X'
+                                    ? Colors.red
+                                    : Colors.blue,
                               ),
                             ),
                           ),
@@ -164,9 +169,9 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                 child: FloatingActionButton(
                   onPressed: () {
                     showModalBottomSheet(
-                  context: context,
-                  builder: (context) => ModalBottomSheetExample(),
-                );
+                      context: context,
+                      builder: (context) => ModalBottomSheetExample(),
+                    );
                   },
                   backgroundColor: Colors.blueAccent,
                   child: const Icon(Icons.help_outline, color: Colors.white),
@@ -235,18 +240,18 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
               },
               child: const Text('Yes'),
             ),
-TextButton(
-  onPressed: () {
-    Navigator.of(context).pop();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SingleOrMulti()), // Navigate to the AiOrMulti screen
-    );
-  },
-  child: const Text('No'),
-),
-
-
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SingleOrMulti()), // Navigate to the AiOrMulti screen
+                );
+              },
+              child: const Text('No'),
+            ),
           ],
         );
       },
@@ -272,7 +277,8 @@ TextButton(
 
     if (availableMoves.isNotEmpty) {
       Random random = Random();
-      List<int> randomMove = availableMoves[random.nextInt(availableMoves.length)];
+      List<int> randomMove =
+          availableMoves[random.nextInt(availableMoves.length)];
       setState(() {
         _grid[randomMove[0]][randomMove[1]] = 'O';
       });
@@ -330,7 +336,8 @@ TextButton(
     }
   }
 
-  int minimaxWithDepthLimit(List<List<String>> board, bool isMaximizing, int depth, int maxDepth) {
+  int minimaxWithDepthLimit(
+      List<List<String>> board, bool isMaximizing, int depth, int maxDepth) {
     if (checkWin(board, 'O')) return 1;
     if (checkWin(board, 'X')) return -1;
     if (checkDraw(board)) return 0;
@@ -343,7 +350,8 @@ TextButton(
         for (int j = 0; j < 3; j++) {
           if (board[i][j].isEmpty) {
             board[i][j] = 'O';
-            int score = minimaxWithDepthLimit(board, false, depth + 1, maxDepth);
+            int score =
+                minimaxWithDepthLimit(board, false, depth + 1, maxDepth);
             board[i][j] = '';
             bestScore = max(score, bestScore);
           }
@@ -403,13 +411,21 @@ TextButton(
   bool checkWin(List<List<String>> board, String player) {
     // Check rows, columns, and diagonals
     for (int i = 0; i < 3; i++) {
-      if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) ||
-          (board[0][i] == player && board[1][i] == player && board[2][i] == player)) {
+      if ((board[i][0] == player &&
+              board[i][1] == player &&
+              board[i][2] == player) ||
+          (board[0][i] == player &&
+              board[1][i] == player &&
+              board[2][i] == player)) {
         return true;
       }
     }
-    if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
-        (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
+    if ((board[0][0] == player &&
+            board[1][1] == player &&
+            board[2][2] == player) ||
+        (board[0][2] == player &&
+            board[1][1] == player &&
+            board[2][0] == player)) {
       return true;
     }
     return false;

@@ -118,6 +118,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: GridView.builder(
+                    physics: NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, // 3 columns for Tic-Tac-Toe
