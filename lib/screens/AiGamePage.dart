@@ -170,7 +170,108 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
-                      builder: (context) => ModalBottomSheetExample(),
+                      isScrollControlled: true,
+                      backgroundColor: Colors.black,
+                      builder: (BuildContext context) {
+                        List<String> chatHistory = [
+                          "User: Hello!",
+                          "Ai: Hi there!",
+                          "User: How are you?",
+                          "Ai: I'm good, thanks. How about you?",
+                        ];
+
+                        TextEditingController chatController =
+                            TextEditingController();
+
+                        return StatefulBuilder(
+                          builder:
+                              (BuildContext context, StateSetter setState) {
+                            return Container(
+                              height: MediaQuery.of(context).size.height * 0.9,
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount: chatHistory.length,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 4.0, horizontal: 12.0),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(12.0),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[800],
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Text(
+                                              chatHistory[index],
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      left: 8.0,
+                                      right: 8.0,
+                                      bottom: MediaQuery.of(context)
+                                              .viewInsets
+                                              .bottom +
+                                          8.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: TextField(
+                                            controller: chatController,
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                            decoration: InputDecoration(
+                                              hintText: "Type a message...",
+                                              hintStyle: TextStyle(
+                                                  color: Colors.white54),
+                                              filled: true,
+                                              fillColor: Colors.grey[800],
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(30.0),
+                                                borderSide: BorderSide.none,
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 14.0,
+                                                      horizontal: 20.0),
+                                            ),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.send,
+                                              color: Colors.white),
+                                          onPressed: () {
+                                            String message =
+                                                chatController.text.trim();
+                                            if (message.isNotEmpty) {
+                                              setState(() {
+                                                chatHistory
+                                                    .add("User: $message");
+                                                chatController.clear();
+                                              });
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
                     );
                   },
                   backgroundColor: Colors.blueAccent,

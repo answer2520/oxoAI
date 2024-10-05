@@ -158,25 +158,25 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
           ),
 
           // Bottom right help button
-          Expanded(
-            flex: 1,
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (context) => ModalBottomSheetExample(),
-                    );
-                  },
-                  backgroundColor: Colors.blueAccent,
-                  child: const Icon(Icons.help_outline, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
+          // Expanded(
+          //   flex: 1,
+          //   child: Align(
+          //     alignment: Alignment.bottomRight,
+          //     child: Padding(
+          //       padding: const EdgeInsets.all(16.0),
+          //       child: FloatingActionButton(
+          //         onPressed: () {
+          //           showModalBottomSheet(
+          //             context: context,
+          //             builder: (context) => ModalBottomSheetExample(),
+          //           );
+          //         },
+          //         backgroundColor: Colors.blueAccent,
+          //         child: const Icon(Icons.help_outline, color: Colors.white),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
