@@ -110,49 +110,47 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
           ),
 
           // Middle section for Tic-Tac-Toe grid
-          Expanded(
-            flex: 3,
-            child: Center(
+          Flexible(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
               child: Container(
-                padding: const EdgeInsets.all(20.0),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: GridView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, // 3 columns for Tic-Tac-Toe
-                      crossAxisSpacing: 5, // spacing between the cells
-                      mainAxisSpacing: 5, // spacing between rows
-                    ),
-                    itemCount: 9, // 3x3 grid = 9 cells
-                    itemBuilder: (context, index) {
-                      int row = index ~/ 3; // Get row by integer division
-                      int col = index % 3; // Get column by remainder
+                height: double.infinity,
+                alignment: Alignment.center,
+                child: GridView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3, // 3 columns for Tic-Tac-Toe
+                    crossAxisSpacing: 5, // spacing between the cells
+                    mainAxisSpacing: 5, // spacing between rows
+                  ),
+                  itemCount: 9, // 3x3 grid = 9 cells
+                  itemBuilder: (context, index) {
+                    int row = index ~/ 3; // Get row by integer division
+                    int col = index % 3; // Get column by remainder
 
-                      return GestureDetector(
-                        onTap: () => _handleTapAtIndex(row, col),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.black),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Center(
-                            child: Text(
-                              _grid[row][col], // Show X or O
-                              style: TextStyle(
-                                fontSize: 48,
-                                color: _grid[row][col] == 'X'
-                                    ? Colors.red
-                                    : Colors.blue, // Color based on player
-                              ),
+                    return GestureDetector(
+                      onTap: () => _handleTapAtIndex(row, col),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Center(
+                          child: Text(
+                            _grid[row][col], // Show X or O
+                            style: TextStyle(
+                              fontSize: 48,
+                              color: _grid[row][col] == 'X'
+                                  ? Colors.red
+                                  : Colors.blue, // Color based on player
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
