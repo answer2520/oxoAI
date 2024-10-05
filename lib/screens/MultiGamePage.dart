@@ -215,6 +215,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
               'role': 'system',
               'content':
                   'Analyze the Tic-Tac-Toe state and suggest the best move. Respond with the position, e.g., "2nd row, 2nd column.'
+
             },
             {
               'role': 'user',
