@@ -175,9 +175,9 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                       builder: (BuildContext context) {
                         List<String> chatHistory = [
                           "User: Hello!",
-                          "Other: Hi there!",
+                          "Ai: Hi there!",
                           "User: How are you?",
-                          "Other: I'm good, thanks. How about you?",
+                          "Ai: I'm good, thanks. How about you?",
                         ];
 
                         TextEditingController chatController =
