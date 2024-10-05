@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
-import 'package:oxoai/widgets/modalSheet.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:developer' as developer;
 import 'package:oxoai/screens/AiOrMulti.dart';
 
 class TicTacToeScreen extends StatefulWidget {
   final String difficulty;
 
-  TicTacToeScreen({Key? key, required this.difficulty}) : super(key: key);
+  const TicTacToeScreen({Key? key, required this.difficulty}) : super(key: key);
 
   @override
   _TicTacToeScreenState createState() => _TicTacToeScreenState();
@@ -17,14 +18,20 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   bool _isPlayerTurn = true;
   int playerScore = 0;
   int aiScore = 0;
+  bool _isAiThinking = false;
+
+  static const String _apiKey = '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'; 
 
   @override
   Widget build(BuildContext context) {
+    // Keep your existing build method, but add an AI thinking indicator
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
+      body: Stack(
         children: [
-          // Top section for player and AI score
+          Column(
+            children: [
+                        // Top section for player and AI score
           Expanded(
             flex: 2,
             child: Container(
@@ -110,180 +117,224 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
             ),
           ),
 
-          // Middle section for Tic-Tac-Toe grid
-          Flexible(
-            flex: 3,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(20.0),
-                child: GridView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                  ),
-                  itemCount: 9,
-                  itemBuilder: (context, index) {
-                    int row = index ~/ 3;
-                    int col = index % 3;
-
-                    return GestureDetector(
-                      onTap: () => _handleTapAtIndex(row, col),
+              // Update the grid section to show loading indicator when AI is thinking
+              Flexible(
+                flex: 3,
+                child: Stack(
+                  children: [
+                    Center(
                       child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Center(
-                          child: Text(
-                            _grid[row][col],
-                            style: TextStyle(
-                              fontSize: 48,
-                              color: _grid[row][col] == 'X'
-                                  ? Colors.red
-                                  : Colors.blue,
-                            ),
+                        padding: const EdgeInsets.all(20.0),
+                        child: GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5,
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
+                          itemCount: 9,
+                          itemBuilder: (context, index) {
+                            int row = index ~/ 3;
+                            int col = index % 3;
 
-          // Bottom right help button
-          Expanded(
-            flex: 1,
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.black,
-                      builder: (BuildContext context) {
-                        List<String> chatHistory = [
-                          "User: Hello!",
-                          "Ai: Hi there!",
-                          "User: How are you?",
-                          "Ai: I'm good, thanks. How about you?",
-                        ];
-
-                        TextEditingController chatController =
-                            TextEditingController();
-
-                        return StatefulBuilder(
-                          builder:
-                              (BuildContext context, StateSetter setState) {
-                            return Container(
-                              height: MediaQuery.of(context).size.height * 0.9,
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: ListView.builder(
-                                      itemCount: chatHistory.length,
-                                      itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 4.0, horizontal: 12.0),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(12.0),
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[800],
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            child: Text(
-                                              chatHistory[index],
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        );
-                                      },
+                            return GestureDetector(
+                              onTap: () => _handleTapAtIndex(row, col),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.black),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _grid[row][col],
+                                    style: TextStyle(
+                                      fontSize: 48,
+                                      color: _grid[row][col] == 'X'
+                                          ? Colors.red
+                                          : Colors.blue,
                                     ),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      left: 8.0,
-                                      right: 8.0,
-                                      bottom: MediaQuery.of(context)
-                                              .viewInsets
-                                              .bottom +
-                                          8.0,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: TextField(
-                                            controller: chatController,
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                            decoration: InputDecoration(
-                                              hintText: "Type a message...",
-                                              hintStyle: TextStyle(
-                                                  color: Colors.white54),
-                                              filled: true,
-                                              fillColor: Colors.grey[800],
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30.0),
-                                                borderSide: BorderSide.none,
-                                              ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 14.0,
-                                                      horizontal: 20.0),
-                                            ),
-                                          ),
-                                        ),
-                                        IconButton(
-                                          icon: Icon(Icons.send,
-                                              color: Colors.white),
-                                          onPressed: () {
-                                            String message =
-                                                chatController.text.trim();
-                                            if (message.isNotEmpty) {
-                                              setState(() {
-                                                chatHistory
-                                                    .add("User: $message");
-                                                chatController.clear();
-                                              });
-                                            }
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             );
                           },
-                        );
-                      },
-                    );
-                  },
-                  backgroundColor: Colors.blueAccent,
-                  child: const Icon(Icons.help_outline, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    if (_isAiThinking)
+                      Container(
+                        color: Colors.black54,
+                        child: const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 16),
+                              Text(
+                                'AI is thinking...',
+                                style: TextStyle(color: Colors.white, fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  // Handle the tap on the Tic-Tac-Toe grid
+  Future<void> _makeAiMove() async {
+    setState(() {
+      _isAiThinking = true;
+    });
+
+    try {
+      String gridString = _gridToString();
+      String difficulty = widget.difficulty.toLowerCase();
+      
+      final response = await http.post(
+        Uri.parse('https://api.openai.com/v1/chat/completions'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_apiKey',
+        },
+        body: jsonEncode({
+          'model': 'gpt-3.5-turbo',
+          'messages': [
+            {
+              'role': 'system',
+              'content': '''You are playing Tic-Tac-Toe at ${widget.difficulty} difficulty. 
+              You play as 'O', and the human plays as 'X'. 
+              Respond only with two numbers: the row (0-2) and column (0-2) for your move.
+              ${_getDifficultyInstruction()}'''
+            },
+            {
+              'role': 'user',
+              'content': 'Current board state (empty spaces are "", X for human, O for you):\n$gridString\nMake your move.'
+            }
+          ],
+          'temperature': _getDifficultyTemperature(),
+          'max_tokens': 50,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        String aiResponse = jsonResponse['choices'][0]['message']['content'];
+        
+        // Parse the AI's move
+        List<int> move = _parseAiMove(aiResponse);
+        
+        if (move.length == 2 && _isValidMove(move[0], move[1])) {
+          setState(() {
+            _grid[move[0]][move[1]] = 'O';
+            _isPlayerTurn = true;
+          });
+
+          // Check for game end conditions
+          if (checkWin(_grid, 'O')) {
+            aiScore++;
+            _showEndDialog('AI Won!');
+          } else if (checkDraw(_grid)) {
+            _showEndDialog('It\'s a Draw!');
+          }
+        } else {
+          // If AI provides invalid move, make a random move
+          _makeRandomMove();
+        }
+      } else {
+        developer.log('API Error: ${response.statusCode} - ${response.body}');
+        _makeRandomMove();
+      }
+    } catch (e) {
+      developer.log('Error in AI move: $e');
+      _makeRandomMove();
+    } finally {
+      setState(() {
+        _isAiThinking = false;
+      });
+    }
+  }
+
+  String _getDifficultyInstruction() {
+    switch (widget.difficulty.toLowerCase()) {
+      case 'easy':
+        return 'Make obvious mistakes and don\'t block the player\'s winning moves.';
+      case 'medium':
+        return 'Play at an intermediate level, occasionally making mistakes.';
+      case 'difficult':
+        return 'Play optimally, always choosing the best possible move.';
+      default:
+        return 'Play at an intermediate level.';
+    }
+  }
+
+  double _getDifficultyTemperature() {
+    switch (widget.difficulty.toLowerCase()) {
+      case 'easy':
+        return 1.0;
+      case 'medium':
+        return 0.7;
+      case 'difficult':
+        return 0.2;
+      default:
+        return 0.7;
+    }
+  }
+
+  String _gridToString() {
+    return _grid.map((row) => row.join(',')).join('\n');
+  }
+
+  List<int> _parseAiMove(String aiResponse) {
+    try {
+      // Extract numbers from the AI's response
+      RegExp regex = RegExp(r'\d');
+      List<int> numbers = regex.allMatches(aiResponse)
+          .map((match) => int.parse(match.group(0)!))
+          .take(2)
+          .toList();
+      
+      if (numbers.length == 2) {
+        return numbers;
+      }
+    } catch (e) {
+      developer.log('Error parsing AI move: $e');
+    }
+    return [];
+  }
+
+  bool _isValidMove(int row, int col) {
+    return row >= 0 && row < 3 && col >= 0 && col < 3 && _grid[row][col].isEmpty;
+  }
+
+  void _makeRandomMove() {
+    List<List<int>> availableMoves = [];
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        if (_grid[i][j].isEmpty) {
+          availableMoves.add([i, j]);
+        }
+      }
+    }
+
+    if (availableMoves.isNotEmpty) {
+      availableMoves.shuffle();
+      setState(() {
+        _grid[availableMoves[0][0]][availableMoves[0][1]] = 'O';
+      });
+    }
+  }
+
+  // Update your _handleTapAtIndex method
   void _handleTapAtIndex(int row, int col) {
-    if (_grid[row][col].isEmpty && _isPlayerTurn) {
+    if (_grid[row][col].isEmpty && _isPlayerTurn && !_isAiThinking) {
       setState(() {
         _grid[row][col] = 'X';
         _isPlayerTurn = false;
@@ -295,33 +346,45 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
       } else if (checkDraw(_grid)) {
         _showEndDialog('It\'s a Draw!');
       } else {
-        _aiMove();
+        _makeAiMove();
       }
     }
   }
 
-  void _aiMove() {
-    if (widget.difficulty == 'Easy') {
-      _makeRandomMove();
-    } else if (widget.difficulty == 'Medium') {
-      _makeMoveWithLimitedMinimax();
-    } else if (widget.difficulty == 'Difficult') {
-      _makeBestMoveWithMinimax();
+  // Keep your existing helper methods (checkWin, checkDraw, _showEndDialog, _resetGrid)
+  // ...
+  bool checkWin(List<List<String>> board, String player) {
+    // Check rows, columns, and diagonals
+    for (int i = 0; i < 3; i++) {
+      if ((board[i][0] == player &&
+              board[i][1] == player &&
+              board[i][2] == player) ||
+          (board[0][i] == player &&
+              board[1][i] == player &&
+              board[2][i] == player)) {
+        return true;
+      }
     }
-
-    setState(() {
-      _isPlayerTurn = true;
-    });
-
-    if (checkWin(_grid, 'O')) {
-      aiScore++;
-      _showEndDialog('AI Won!');
-    } else if (checkDraw(_grid)) {
-      _showEndDialog('It\'s a Draw!');
+    if ((board[0][0] == player &&
+            board[1][1] == player &&
+            board[2][2] == player) ||
+        (board[0][2] == player &&
+            board[1][1] == player &&
+            board[2][0] == player)) {
+      return true;
     }
+    return false;
   }
 
-  void _showEndDialog(String title) {
+  bool checkDraw(List<List<String>> board) {
+    for (var row in board) {
+      if (row.contains('')) {
+        return false;
+      }
+    }
+    return true;
+  }
+    void _showEndDialog(String title) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -354,186 +417,11 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
       },
     );
   }
-
-  void _resetGrid() {
+    void _resetGrid() {
     setState(() {
       _grid = List.generate(3, (_) => List.filled(3, ''));
       _isPlayerTurn = true;
     });
   }
 
-  void _makeRandomMove() {
-    List<List<int>> availableMoves = [];
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        if (_grid[i][j].isEmpty) {
-          availableMoves.add([i, j]);
-        }
-      }
-    }
-
-    if (availableMoves.isNotEmpty) {
-      Random random = Random();
-      List<int> randomMove =
-          availableMoves[random.nextInt(availableMoves.length)];
-      setState(() {
-        _grid[randomMove[0]][randomMove[1]] = 'O';
-      });
-    }
-  }
-
-  void _makeMoveWithLimitedMinimax() {
-    int bestScore = -1000;
-    List<int> bestMove = [-1, -1];
-    int depthLimit = 2;
-
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        if (_grid[i][j].isEmpty) {
-          _grid[i][j] = 'O';
-          int score = minimaxWithDepthLimit(_grid, false, 0, depthLimit);
-          _grid[i][j] = '';
-          if (score > bestScore) {
-            bestScore = score;
-            bestMove = [i, j];
-          }
-        }
-      }
-    }
-
-    if (bestMove[0] != -1 && bestMove[1] != -1) {
-      setState(() {
-        _grid[bestMove[0]][bestMove[1]] = 'O';
-      });
-    }
-  }
-
-  void _makeBestMoveWithMinimax() {
-    int bestScore = -1000;
-    List<int> bestMove = [-1, -1];
-
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        if (_grid[i][j].isEmpty) {
-          _grid[i][j] = 'O';
-          int score = minimax(_grid, false);
-          _grid[i][j] = '';
-          if (score > bestScore) {
-            bestScore = score;
-            bestMove = [i, j];
-          }
-        }
-      }
-    }
-
-    if (bestMove[0] != -1 && bestMove[1] != -1) {
-      setState(() {
-        _grid[bestMove[0]][bestMove[1]] = 'O';
-      });
-    }
-  }
-
-  int minimaxWithDepthLimit(
-      List<List<String>> board, bool isMaximizing, int depth, int maxDepth) {
-    if (checkWin(board, 'O')) return 1;
-    if (checkWin(board, 'X')) return -1;
-    if (checkDraw(board)) return 0;
-
-    if (depth == maxDepth) return 0;
-
-    if (isMaximizing) {
-      int bestScore = -1000;
-      for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-          if (board[i][j].isEmpty) {
-            board[i][j] = 'O';
-            int score =
-                minimaxWithDepthLimit(board, false, depth + 1, maxDepth);
-            board[i][j] = '';
-            bestScore = max(score, bestScore);
-          }
-        }
-      }
-      return bestScore;
-    } else {
-      int bestScore = 1000;
-      for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-          if (board[i][j].isEmpty) {
-            board[i][j] = 'X';
-            int score = minimaxWithDepthLimit(board, true, depth + 1, maxDepth);
-            board[i][j] = '';
-            bestScore = min(score, bestScore);
-          }
-        }
-      }
-      return bestScore;
-    }
-  }
-
-  int minimax(List<List<String>> board, bool isMaximizing) {
-    if (checkWin(board, 'O')) return 1;
-    if (checkWin(board, 'X')) return -1;
-    if (checkDraw(board)) return 0;
-
-    if (isMaximizing) {
-      int bestScore = -1000;
-      for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-          if (board[i][j].isEmpty) {
-            board[i][j] = 'O';
-            int score = minimax(board, false);
-            board[i][j] = '';
-            bestScore = max(score, bestScore);
-          }
-        }
-      }
-      return bestScore;
-    } else {
-      int bestScore = 1000;
-      for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-          if (board[i][j].isEmpty) {
-            board[i][j] = 'X';
-            int score = minimax(board, true);
-            board[i][j] = '';
-            bestScore = min(score, bestScore);
-          }
-        }
-      }
-      return bestScore;
-    }
-  }
-
-  bool checkWin(List<List<String>> board, String player) {
-    // Check rows, columns, and diagonals
-    for (int i = 0; i < 3; i++) {
-      if ((board[i][0] == player &&
-              board[i][1] == player &&
-              board[i][2] == player) ||
-          (board[0][i] == player &&
-              board[1][i] == player &&
-              board[2][i] == player)) {
-        return true;
-      }
-    }
-    if ((board[0][0] == player &&
-            board[1][1] == player &&
-            board[2][2] == player) ||
-        (board[0][2] == player &&
-            board[1][1] == player &&
-            board[2][0] == player)) {
-      return true;
-    }
-    return false;
-  }
-
-  bool checkDraw(List<List<String>> board) {
-    for (var row in board) {
-      if (row.contains('')) {
-        return false;
-      }
-    }
-    return true;
-  }
 }

@@ -207,7 +207,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
           'messages': [
             {
               'role': 'system',
-              'content': 'You are a Tic-Tac-Toe expert. Analyze the game state and suggest the best move.',
+              'content': 'Analyze the Tic-Tac-Toe state and suggest the best move. Respond with the position, e.g., "2nd row, 2nd column.',
             },
             {
               'role': 'user',
