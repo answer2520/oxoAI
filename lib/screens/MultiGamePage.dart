@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oxoai/screens/AiOrMulti.dart';
 
 class MultiPlayerScreen extends StatefulWidget {
   MultiPlayerScreen({super.key});
@@ -278,10 +279,13 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                 'No',
                 style: TextStyle(color: Colors.redAccent),
               ),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                // Optional: Navigate to another screen or quit the game
-              },
+  onPressed: () {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SingleOrMulti()), // Navigate to the AiOrMulti screen
+    );
+  },
             ),
           ],
         );
