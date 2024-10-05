@@ -111,49 +111,45 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
           ),
 
           // Middle section for Tic-Tac-Toe grid
-          Expanded(
+          Flexible(
             flex: 3,
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(20.0),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: GridView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 5,
-                    ),
-                    itemCount: 9,
-                    itemBuilder: (context, index) {
-                      int row = index ~/ 3;
-                      int col = index % 3;
+                child: GridView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
+                  ),
+                  itemCount: 9,
+                  itemBuilder: (context, index) {
+                    int row = index ~/ 3;
+                    int col = index % 3;
 
-                      return GestureDetector(
-                        onTap: () => _handleTapAtIndex(row, col),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.black),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Center(
-                            child: Text(
-                              _grid[row][col],
-                              style: TextStyle(
-                                fontSize: 48,
-                                color: _grid[row][col] == 'X'
-                                    ? Colors.red
-                                    : Colors.blue,
-                              ),
+                    return GestureDetector(
+                      onTap: () => _handleTapAtIndex(row, col),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Center(
+                          child: Text(
+                            _grid[row][col],
+                            style: TextStyle(
+                              fontSize: 48,
+                              color: _grid[row][col] == 'X'
+                                  ? Colors.red
+                                  : Colors.blue,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
