@@ -116,7 +116,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(20.0),
-                child: GridView.builder(
+                child:GridView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,

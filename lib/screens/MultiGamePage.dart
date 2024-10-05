@@ -26,7 +26,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
         children: [
           // Top section for player status and scores
           Expanded(
-            flex: 2,
+            flex: 1,
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -280,13 +280,15 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
                 'No',
                 style: TextStyle(color: Colors.redAccent),
               ),
-  onPressed: () {
-    Navigator.of(context).pop();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SingleOrMulti()), // Navigate to the AiOrMulti screen
-    );
-  },
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SingleOrMulti()), // Navigate to the AiOrMulti screen
+                );
+              },
             ),
           ],
         );
