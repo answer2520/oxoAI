@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oxoai/screens/AiOrM.dart';
+import 'package:oxoai/screens/AiOrMulti.dart';
 
 class MultiPlayerScreen extends StatefulWidget {
   MultiPlayerScreen({super.key});
