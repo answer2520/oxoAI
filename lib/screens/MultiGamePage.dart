@@ -19,7 +19,8 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
 
   // Constants
   static const String _apiUrl = 'https://api.openai.com/v1/chat/completions';
-  static const String _apiKey = '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';
+  static const String _apiKey =
+      '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';
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +38,10 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.red.withOpacity(0.7), Colors.blue.withOpacity(0.7)],
+                  colors: [
+                    Colors.red.withOpacity(0.7),
+                    Colors.blue.withOpacity(0.7)
+                  ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
@@ -45,8 +49,10 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildPlayerScore('Player 1 (X)', _player1Score, Colors.redAccent),
-                  _buildPlayerScore('Player 2 (O)', _player2Score, Colors.blueAccent),
+                  _buildPlayerScore(
+                      'Player 1 (X)', _player1Score, Colors.redAccent),
+                  _buildPlayerScore(
+                      'Player 2 (O)', _player2Score, Colors.blueAccent),
                 ],
               ),
             ),
@@ -76,16 +82,16 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
               children: [
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _getAIHelp,
-                  icon: _isLoading 
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(color: Colors.white)
-                      )
-                    : const Icon(Icons.lightbulb_outline),
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white))
+                      : const Icon(Icons.lightbulb_outline),
                   label: Text(_isLoading ? 'Getting help...' : 'Get AI Help'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                     backgroundColor: Colors.blue,
                   ),
                 ),
@@ -113,7 +119,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
   Widget _buildGridItem(BuildContext context, int index) {
     int row = index ~/ 3;
     int col = index % 3;
-    
+
     return GestureDetector(
       onTap: () => _handleTapAtIndex(row, col),
       child: Container(
@@ -195,7 +201,7 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
 
     try {
       String gridString = _grid.map((row) => row.join(',')).join('|');
-      
+
       final response = await http.post(
         Uri.parse(_apiUrl),
         headers: {
@@ -207,11 +213,14 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
           'messages': [
             {
               'role': 'system',
-              'content': 'Analyze the Tic-Tac-Toe state and suggest the best move. Respond with the position, e.g., "2nd row, 2nd column.',
+              'content':
+                  'Analyze the Tic-Tac-Toe state and suggest the best move. Respond with the position, e.g., "2nd row, 2nd column.'
+
             },
             {
               'role': 'user',
-              'content': 'Current game state: $gridString. What\'s the best move for ${_isPlayer1Turn ? "X" : "O"}?',
+              'content':
+                  'Current game state: $gridString. What\'s the best move for ${_isPlayer1Turn ? "X" : "O"}?',
             },
           ],
         }),
@@ -253,28 +262,36 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
   String? _checkWin() {
     // Check rows, columns and diagonals
     for (int i = 0; i < 3; i++) {
-      if (_grid[i][0] != '' && _grid[i][0] == _grid[i][1] && _grid[i][1] == _grid[i][2]) {
+      if (_grid[i][0] != '' &&
+          _grid[i][0] == _grid[i][1] &&
+          _grid[i][1] == _grid[i][2]) {
         return _grid[i][0];
       }
-      if (_grid[0][i] != '' && _grid[0][i] == _grid[1][i] && _grid[1][i] == _grid[2][i]) {
+      if (_grid[0][i] != '' &&
+          _grid[0][i] == _grid[1][i] &&
+          _grid[1][i] == _grid[2][i]) {
         return _grid[0][i];
       }
     }
-    
-    if (_grid[0][0] != '' && _grid[0][0] == _grid[1][1] && _grid[1][1] == _grid[2][2]) {
+
+    if (_grid[0][0] != '' &&
+        _grid[0][0] == _grid[1][1] &&
+        _grid[1][1] == _grid[2][2]) {
       return _grid[0][0];
     }
-    if (_grid[0][2] != '' && _grid[0][2] == _grid[1][1] && _grid[1][1] == _grid[2][0]) {
+    if (_grid[0][2] != '' &&
+        _grid[0][2] == _grid[1][1] &&
+        _grid[1][1] == _grid[2][0]) {
       return _grid[0][2];
     }
-    
+
     return null;
   }
 
   void _showGameOverDialog(String result) {
-    String message = result == 'Draw' 
-      ? "It's a Draw!" 
-      : "Player ${result == 'X' ? '1' : '2'} Wins!";
+    String message = result == 'Draw'
+        ? "It's a Draw!"
+        : "Player ${result == 'X' ? '1' : '2'} Wins!";
 
     showDialog(
       context: context,

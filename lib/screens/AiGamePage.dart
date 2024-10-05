@@ -117,6 +117,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
             ),
           ),
 
+
               // Update the grid section to show loading indicator when AI is thinking
               Flexible(
                 flex: 3,
