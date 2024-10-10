@@ -17,6 +17,8 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
   String? _aiSuggestion;
   bool _isLoading = false;
 
+  List<String> _gameHistory = [];
+
   // Constants
   static const String _apiUrl = 'https://api.openai.com/v1/chat/completions';
   static const String _apiKey =
@@ -30,6 +32,12 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
         title: const Text('Tic Tac Toe'),
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: <Widget>[
+          IconButton(
+              icon: const Icon(Icons.history),
+              tooltip: 'Show History',
+              onPressed: _showHistoryModal)
+        ],
       ),
       body: Column(
         children: [
@@ -215,7 +223,6 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
               'role': 'system',
               'content':
                   'Analyze the Tic-Tac-Toe state and suggest the best move. Respond with the position, e.g., "2nd row, 2nd column.'
-
             },
             {
               'role': 'user',
@@ -293,6 +300,12 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
         ? "It's a Draw!"
         : "Player ${result == 'X' ? '1' : '2'} Wins!";
 
+    String messageHistoric = result == 'Draw'
+        ? "It's a Draw!"
+        : "Player ${result == 'X' ? '1' : '2'} Winned!";
+
+    _gameHistory.add(messageHistoric);
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -345,5 +358,30 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
       _player1Score = 0;
       _player2Score = 0;
     });
+  }
+
+  void _showHistoryModal() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          color: Colors.grey[900],
+          child: ListView(
+            children: _gameHistory.isEmpty
+                ? [
+                    const ListTile(
+                        title: Text('No history',
+                            style: TextStyle(color: Colors.white)))
+                  ]
+                : _gameHistory
+                    .map((result) => ListTile(
+                          title: Text(result,
+                              style: TextStyle(color: Colors.white)),
+                        ))
+                    .toList(),
+          ),
+        );
+      },
+    );
   }
 }
