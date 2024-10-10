@@ -20,103 +20,116 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   int aiScore = 0;
   bool _isAiThinking = false;
 
-  static const String _apiKey = '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'; 
+  List<String> _gameHistory = [];
+
+  static const String _apiKey =
+      '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';
 
   @override
   Widget build(BuildContext context) {
     // Keep your existing build method, but add an AI thinking indicator
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tic Tac Toe'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: <Widget>[
+          IconButton(
+              icon: const Icon(Icons.history),
+              tooltip: 'Show History',
+              onPressed: _showHistoryModal)
+        ],
+      ),
       backgroundColor: Colors.black,
       body: Stack(
         children: [
           Column(
             children: [
-                        // Top section for player and AI score
-          Expanded(
-            flex: 2,
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.red, Colors.blue],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+              // Top section for player and AI score
+              Expanded(
+                flex: 2,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.red, Colors.blue],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // "YOU" section
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'YOU',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            width: 80,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$playerScore',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // "AI" section
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'AI',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            width: 80,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.blueAccent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$aiScore',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // "YOU" section
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'YOU',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        width: 80,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$playerScore',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // "AI" section
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'AI',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        width: 80,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$aiScore',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
 
               // Update the grid section to show loading indicator when AI is thinking
               Flexible(
@@ -128,7 +141,8 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                         padding: const EdgeInsets.all(20.0),
                         child: GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             crossAxisSpacing: 5,
                             mainAxisSpacing: 5,
@@ -174,7 +188,8 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                               SizedBox(height: 16),
                               Text(
                                 'AI is thinking...',
-                                style: TextStyle(color: Colors.white, fontSize: 18),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18),
                               ),
                             ],
                           ),
@@ -198,7 +213,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     try {
       String gridString = _gridToString();
       String difficulty = widget.difficulty.toLowerCase();
-      
+
       final response = await http.post(
         Uri.parse('https://api.openai.com/v1/chat/completions'),
         headers: {
@@ -210,14 +225,16 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
           'messages': [
             {
               'role': 'system',
-              'content': '''You are playing Tic-Tac-Toe at ${widget.difficulty} difficulty. 
+              'content':
+                  '''You are playing Tic-Tac-Toe at ${widget.difficulty} difficulty. 
               You play as 'O', and the human plays as 'X'. 
               Respond only with two numbers: the row (0-2) and column (0-2) for your move.
               ${_getDifficultyInstruction()}'''
             },
             {
               'role': 'user',
-              'content': 'Current board state (empty spaces are "", X for human, O for you):\n$gridString\nMake your move.'
+              'content':
+                  'Current board state (empty spaces are "", X for human, O for you):\n$gridString\nMake your move.'
             }
           ],
           'temperature': _getDifficultyTemperature(),
@@ -228,10 +245,10 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
         String aiResponse = jsonResponse['choices'][0]['message']['content'];
-        
+
         // Parse the AI's move
         List<int> move = _parseAiMove(aiResponse);
-        
+
         if (move.length == 2 && _isValidMove(move[0], move[1])) {
           setState(() {
             _grid[move[0]][move[1]] = 'O';
@@ -297,11 +314,12 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     try {
       // Extract numbers from the AI's response
       RegExp regex = RegExp(r'\d');
-      List<int> numbers = regex.allMatches(aiResponse)
+      List<int> numbers = regex
+          .allMatches(aiResponse)
           .map((match) => int.parse(match.group(0)!))
           .take(2)
           .toList();
-      
+
       if (numbers.length == 2) {
         return numbers;
       }
@@ -312,7 +330,11 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   }
 
   bool _isValidMove(int row, int col) {
-    return row >= 0 && row < 3 && col >= 0 && col < 3 && _grid[row][col].isEmpty;
+    return row >= 0 &&
+        row < 3 &&
+        col >= 0 &&
+        col < 3 &&
+        _grid[row][col].isEmpty;
   }
 
   void _makeRandomMove() {
@@ -385,13 +407,20 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     }
     return true;
   }
-    void _showEndDialog(String title) {
+
+  void _showEndDialog(String result) {
+    String messageHistoric = result == 'Draw'
+        ? "It's a Draw!"
+        : "Player ${result == 'X' ? '1' : '2'} Winned!";
+
+    _gameHistory.add(messageHistoric);
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title, textAlign: TextAlign.center),
+          title: Text(result, textAlign: TextAlign.center),
           content: const Text('Do you want to play again?'),
           actions: <Widget>[
             TextButton(
@@ -418,11 +447,36 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
       },
     );
   }
-    void _resetGrid() {
+
+  void _resetGrid() {
     setState(() {
       _grid = List.generate(3, (_) => List.filled(3, ''));
       _isPlayerTurn = true;
     });
   }
 
+  void _showHistoryModal() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          color: Colors.grey[900],
+          child: ListView(
+            children: _gameHistory.isEmpty
+                ? [
+                    const ListTile(
+                        title: Text('No history',
+                            style: TextStyle(color: Colors.white)))
+                  ]
+                : _gameHistory
+                    .map((result) => ListTile(
+                          title: Text(result,
+                              style: TextStyle(color: Colors.white)),
+                        ))
+                    .toList(),
+          ),
+        );
+      },
+    );
+  }
 }
