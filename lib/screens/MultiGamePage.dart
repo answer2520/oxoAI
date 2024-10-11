@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MultiPlayerScreen extends StatefulWidget {
   const MultiPlayerScreen({super.key});
@@ -18,6 +19,9 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
   bool _isLoading = false;
 
   List<String> _gameHistory = [];
+
+
+
 
   // Constants
   static const String _apiUrl = 'https://api.openai.com/v1/chat/completions';
@@ -115,14 +119,93 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
               ],
             ),
           ),
+          Padding(
+  padding: const EdgeInsets.symmetric(vertical: 16.0),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      ElevatedButton.icon(
+        onPressed: () {
+          _saveGameState(context);  // Pass context to the function
+        },
+        icon: const Icon(Icons.save),
+        label: const Text('Save'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          backgroundColor: Colors.green,
+        ),
+      ),
+      ElevatedButton.icon(
+        onPressed: () {
+          _loadGameState(context);  // Pass context to the function
+        },
+        icon: const Icon(Icons.play_arrow),
+        label: const Text('Continue'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          backgroundColor: Colors.orange,
+        ),
+      ),
+      // ElevatedButton.icon(
+      //   onPressed: () {
+      //     _clearSavedGame(context);  // Pass context to the function
+      //   },
+      //   icon: const Icon(Icons.clear),
+      //   label: const Text('Clear Game'),
+      //   style: ElevatedButton.styleFrom(
+      //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      //     backgroundColor: Colors.red,
+      //   ),
+      // ),
+    ],
+  ),
+),
+
           TextButton(
             onPressed: _resetGame,
             child: const Text('Reset Game'),
           ),
         ],
+        
       ),
     );
   }
+void _showPopup(BuildContext context, String message) {
+  OverlayEntry overlayEntry;
+  
+  overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      top: MediaQuery.of(context).size.height / 2 - 50, // Center vertically
+      left: MediaQuery.of(context).size.width / 2 - 100, // Center horizontally
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          width: 200,
+          height: 100,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            message,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Overlay.of(context).insert(overlayEntry);
+
+  // Remove the popup after 1.5 seconds
+  Future.delayed(const Duration(seconds: 1, milliseconds: 500), () {
+    overlayEntry.remove();
+  });
+}
 
   Widget _buildGridItem(BuildContext context, int index) {
     int row = index ~/ 3;
@@ -200,6 +283,57 @@ class _MultiPlayerScreenState extends State<MultiPlayerScreen> {
       }
     }
   }
+// Method to save the current game state
+Future<void> _saveGameState(BuildContext context) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+  // Save the grid, player turn, and scores as strings
+  String gridState = _grid.map((row) => row.join(',')).join('|');
+  await prefs.setString('grid', gridState);
+  await prefs.setBool('isPlayer1Turn', _isPlayer1Turn);
+  await prefs.setInt('player1Score', _player1Score);
+  await prefs.setInt('player2Score', _player2Score);
+  await prefs.setStringList('gameHistory', _gameHistory);
+
+  // Show pop-up
+  _showPopup(context, 'Game saved!');
+}
+
+// Method to load the saved game state
+Future<void> _loadGameState(BuildContext context) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+  String? gridState = prefs.getString('grid');
+  if (gridState != null) {
+    setState(() {
+      List<String> rows = gridState.split('|');
+      for (int i = 0; i < 3; i++) {
+        _grid[i] = rows[i].split(',');
+      }
+      _isPlayer1Turn = prefs.getBool('isPlayer1Turn') ?? true;
+      _player1Score = prefs.getInt('player1Score') ?? 0;
+      _player2Score = prefs.getInt('player2Score') ?? 0;
+      _gameHistory = prefs.getStringList('gameHistory') ?? [];
+    });
+    _showPopup(context, 'Game loaded!');
+  } else {
+    _showPopup(context, 'No saved game found!');
+  }
+}
+
+// Method to clear the saved game state
+Future<void> _clearSavedGame(BuildContext context) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('grid');
+  await prefs.remove('isPlayer1Turn');
+  await prefs.remove('player1Score');
+  await prefs.remove('player2Score');
+  await prefs.remove('gameHistory');
+  
+  _showPopup(context, 'Game cleared!');
+}
+
+
 
   Future<void> _getAIHelp() async {
     setState(() {

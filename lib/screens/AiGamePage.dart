@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
 import 'package:oxoai/screens/AiOrMulti.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class TicTacToeScreen extends StatefulWidget {
   final String difficulty;
 
@@ -17,6 +17,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   List<List<String>> _grid = List.generate(3, (_) => List.filled(3, ''));
   bool _isPlayerTurn = true;
   int playerScore = 0;
+  bool _isPaused = false;
   int aiScore = 0;
   bool _isAiThinking = false;
 
@@ -25,6 +26,56 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   static const String _apiKey =
       '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';
 
+  @override
+  void initState() {
+    super.initState();
+    _loadGameState(); // Load the saved game state if it exists
+  }
+// Method to save the current game state (only called when the button is pressed)
+Future<void> _saveGameState() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  // Save the grid state as a JSON string
+  await prefs.setString('grid', jsonEncode(_grid));
+
+  // Save player turn, scores, and game history
+  await prefs.setBool('isPlayerTurn', _isPlayerTurn);
+  await prefs.setInt('playerScore', playerScore);
+  await prefs.setInt('aiScore', aiScore);
+  await prefs.setStringList('gameHistory', _gameHistory);
+}
+
+// Method to load the saved game state (only called when the button is pressed)
+Future<void> _loadGameState() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+  setState(() {
+    // Parse the grid and cast it to a List<List<String>>
+    String? gridJson = prefs.getString('grid');
+    if (gridJson != null) {
+      _grid = (jsonDecode(gridJson) as List<dynamic>)
+          .map((row) => (row as List<dynamic>).map((e) => e as String).toList())
+          .toList();
+    }
+
+    _isPlayerTurn = prefs.getBool('isPlayerTurn') ?? true;
+    playerScore = prefs.getInt('playerScore') ?? 0;
+    aiScore = prefs.getInt('aiScore') ?? 0;
+    _gameHistory = prefs.getStringList('gameHistory') ?? [];
+  });
+}
+
+// Method to clear the saved game state (only called when the button is pressed)
+Future<void> _clearGameState() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove('grid');
+  await prefs.remove('isPlayerTurn');
+  await prefs.remove('playerScore');
+  await prefs.remove('aiScore');
+  await prefs.remove('gameHistory');
+}
+
+  
   @override
   Widget build(BuildContext context) {
     // Keep your existing build method, but add an AI thinking indicator
@@ -196,14 +247,102 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                         ),
                       ),
                   ],
+
+                  
                 ),
+                
               ),
+Padding(
+  padding: const EdgeInsets.symmetric(vertical: 16.0),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      ElevatedButton.icon(
+        onPressed: () {
+          _saveGameState();
+          _showPopup(context, 'Game state saved!');
+        },
+        icon: const Icon(Icons.save),
+        label: const Text('Save'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          backgroundColor: Colors.green,
+        ),
+      ),
+      ElevatedButton.icon(
+        onPressed: () {
+          _loadGameState();
+          _showPopup(context, 'Game state loaded!');
+        },
+        icon: const Icon(Icons.play_arrow),
+        label: const Text('Continue'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          backgroundColor: Colors.orange,
+        ),
+      ),
+      ElevatedButton.icon(
+        onPressed: () {
+          _clearGameState();
+          _showPopup(context, 'Game state cleared!');
+        },
+        icon: const Icon(Icons.clear),
+        label: const Text('Clear'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          backgroundColor: Colors.red,
+        ),
+      ),
+    ],
+  ),
+),
+
+
+
             ],
           ),
+
+          
         ],
       ),
     );
   }
+void _showPopup(BuildContext context, String message) {
+  OverlayEntry overlayEntry;
+  
+  overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      top: MediaQuery.of(context).size.height / 2 - 50, // Center vertically
+      left: MediaQuery.of(context).size.width / 2 - 100, // Center horizontally
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          width: 200,
+          height: 100,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            message,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Overlay.of(context).insert(overlayEntry);
+
+  // Remove the popup after 1.5 seconds
+  Future.delayed(const Duration(seconds: 1, milliseconds: 500), () {
+    overlayEntry.remove();
+  });
+}
 
   Future<void> _makeAiMove() async {
     setState(() {
@@ -254,6 +393,8 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
             _grid[move[0]][move[1]] = 'O';
             _isPlayerTurn = true;
           });
+
+          _saveGameState(); // Save the game state after the AI's move
 
           // Check for game end conditions
           if (checkWin(_grid, 'O')) {
@@ -355,13 +496,14 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     }
   }
 
-  // Update your _handleTapAtIndex method
-  void _handleTapAtIndex(int row, int col) {
+void _handleTapAtIndex(int row, int col) {
     if (_grid[row][col].isEmpty && _isPlayerTurn && !_isAiThinking) {
       setState(() {
         _grid[row][col] = 'X';
         _isPlayerTurn = false;
       });
+
+      _saveGameState(); // Save the game state after the player's move
 
       if (checkWin(_grid, 'X')) {
         playerScore++;
